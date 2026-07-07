@@ -688,6 +688,67 @@ local function SaveAdminStore()
     SaveResourceFile(GetCurrentResourceName(), file, json.encode(adminStore), -1)
 end
 
+local function IsVehicleKeyList(value)
+    if type(value) ~= 'table' then return false end
+    if value.key or value.coords or value.label or value.pedModel or value.source then return false end
+    return true
+end
+
+local function FindStoredLocation(locKey)
+    locKey = Trim(locKey)
+    if locKey == '' then return nil, nil end
+    adminStore.locations = adminStore.locations or {}
+    for i, loc in ipairs(adminStore.locations) do
+        if type(loc) == 'table' and (loc.key == locKey or loc.name == locKey) then
+            return loc, i
+        end
+    end
+    return nil, nil
+end
+
+local function AddVehicleToLocation(locKey, vehicleKey)
+    local loc, index = FindStoredLocation(locKey)
+    if loc then
+        loc.vehicles = loc.vehicles or {}
+        if not TableContains(loc.vehicles, vehicleKey) then
+            loc.vehicles[#loc.vehicles + 1] = vehicleKey
+            adminStore.locations[index] = loc
+        end
+        return true
+    end
+
+    local list = adminStore.locations[locKey]
+    if not IsVehicleKeyList(list) then list = {} end
+    if not TableContains(list, vehicleKey) then
+        list[#list + 1] = vehicleKey
+    end
+    adminStore.locations[locKey] = list
+    return true
+end
+
+local function RemoveVehicleFromStoredLocations(vehicleKey)
+    adminStore.locations = adminStore.locations or {}
+    for i, loc in ipairs(adminStore.locations) do
+        if type(loc) == 'table' and type(loc.vehicles) == 'table' then
+            local cleanList = {}
+            for _, existingKey in ipairs(loc.vehicles) do
+                if existingKey ~= vehicleKey then cleanList[#cleanList + 1] = existingKey end
+            end
+            loc.vehicles = cleanList
+            adminStore.locations[i] = loc
+        end
+    end
+    for locName, list in pairs(adminStore.locations) do
+        if type(locName) == 'string' and IsVehicleKeyList(list) then
+            local cleanList = {}
+            for _, existingKey in ipairs(list) do
+                if existingKey ~= vehicleKey then cleanList[#cleanList + 1] = existingKey end
+            end
+            adminStore.locations[locName] = cleanList
+        end
+    end
+end
+
 local function GetVehicle(key)
     if adminStore.vehicles and adminStore.vehicles[key] then
         return adminStore.vehicles[key], true
@@ -1158,6 +1219,7 @@ local function SaveAdminLocation(data)
 
     for i, existing in ipairs(adminStore.locations) do
         if existing.key == loc.key then
+            loc.vehicles = existing.vehicles
             adminStore.locations[i] = loc
             return loc
         end
@@ -1323,27 +1385,9 @@ local function SaveVehicleFromPayload(src, payload, requireLocations)
     end
 
     if validLocations then
-        -- Key aus allen Admin-Standortlisten entfernen und anschließend neu setzen
-        for _, loc in ipairs(Config.RentalLocations) do
-            local list = adminStore.locations[loc.name]
-            if type(list) == 'table' then
-                local cleanList = {}
-                for _, existingKey in ipairs(list) do
-                    if existingKey ~= key and GetVehicle(existingKey) then
-                        cleanList[#cleanList + 1] = existingKey
-                    end
-                end
-                adminStore.locations[loc.name] = cleanList
-            else
-                adminStore.locations[loc.name] = {}
-            end
-        end
-
+        RemoveVehicleFromStoredLocations(key)
         for _, locName in ipairs(validLocations) do
-            local list = adminStore.locations[locName]
-            if not TableContains(list, key) then
-                list[#list + 1] = key
-            end
+            AddVehicleToLocation(locName, key)
         end
     end
 
@@ -1365,25 +1409,7 @@ local function DeleteVehicleByKey(src, key)
     end
 
     adminStore.vehicles[key] = nil
-    for i, loc in ipairs(adminStore.locations or {}) do
-        if type(loc) == 'table' and type(loc.vehicles) == 'table' then
-            local cleanList = {}
-            for _, existingKey in ipairs(loc.vehicles) do
-                if existingKey ~= key then cleanList[#cleanList + 1] = existingKey end
-            end
-            loc.vehicles = cleanList
-            adminStore.locations[i] = loc
-        end
-    end
-    for locName, list in pairs(adminStore.locations) do
-        if type(locName) == 'string' and type(list) == 'table' then
-            local cleanList = {}
-            for _, existingKey in ipairs(list) do
-                if existingKey ~= key then cleanList[#cleanList + 1] = existingKey end
-            end
-            adminStore.locations[locName] = cleanList
-        end
-    end
+    RemoveVehicleFromStoredLocations(key)
 
     SaveAdminStore()
     NotifyAdmin(src, 'Fahrzeug gelöscht.', 'success')
@@ -1408,7 +1434,14 @@ local function SetLocationVehicles(src, name, keys)
         end
     end
 
-    adminStore.locations[name] = cleanList
+    local loc, index = FindStoredLocation(name)
+    if loc then
+        loc.vehicles = cleanList
+        adminStore.locations[index] = loc
+    else
+        adminStore.locations[name] = cleanList
+    end
+
     SaveAdminStore()
     NotifyAdmin(src, 'Standort-Fahrzeuge gespeichert.', 'success')
     BroadcastAdminPayload(src)
