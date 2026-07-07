@@ -146,10 +146,16 @@
   function normalizeImagePath(p) {
     p = String(p == null ? '' : p).trim();
     if (!p) return IMG_FALLBACK;
+    if (/^\/\//.test(p)) return `https:${p}`;
     if (/^(https?:\/\/|nui:\/\/|data:image\/)/i.test(p)) return p;
     if (/^img\//i.test(p)) return p;
     if (/^[a-z0-9_\-.]+\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(p)) return `img/${p}`;
     return p;
+  }
+
+  // Nur Anführungszeichen escapen — & in Query-Strings (z. B. Discord-CDN) bleibt gültig
+  function imgUrlAttr(p) {
+    return String(imgSrc(p)).replace(/"/g, '&quot;');
   }
 
   // Optionale Pfad-Zuordnung (nur Standalone-Export); im FiveM-Resource werden echte Dateien benutzt.
@@ -410,7 +416,7 @@
       const card = document.createElement('div');
       card.className = 'vehicle-card';
       card.innerHTML = `
-        <div class="vehicle-card-img"><img src="${esc(imgSrc(v.image))}" alt="${esc(v.label)}" ${IMG_ONERROR} /></div>
+        <div class="vehicle-card-img"><img src="${imgUrlAttr(v.image)}" alt="${esc(v.label)}" ${IMG_ONERROR} /></div>
         <div class="vehicle-card-body">
           <div class="vehicle-card-name">${esc(v.label)}</div>
           <div class="vehicle-card-foot">
@@ -1045,7 +1051,7 @@
 
     const rows = (d.vehicles || []).map((v) => `
       <tr>
-        <td><div class="veh-thumb"><img src="${esc(imgSrc(v.image))}" alt="" ${IMG_ONERROR} /></div></td>
+        <td><div class="veh-thumb"><img src="${imgUrlAttr(v.image)}" alt="" ${IMG_ONERROR} /></div></td>
         <td class="td-strong">${esc(v.label)}</td>
         <td><span class="code">${esc(v.model)}</span></td>
         <td><span class="badge badge-neutral">${esc(v.category)}</span></td>

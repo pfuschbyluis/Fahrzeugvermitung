@@ -929,6 +929,7 @@ local function IsAllowedImagePath(image)
     image = Trim(image)
     if image == '' then return true end
     if image:find('<', 1, true) or image:find('>', 1, true) or image:find('\"', 1, true) or image:find("'", 1, true) then return false end
+    if image:match('^//') then return true end
     if image:match('^https?://') then return true end
     if image:match('^nui://') then return true end
     if image:match('^data:image/[A-Za-z0-9%+%-%._]+;base64,') then return true end
