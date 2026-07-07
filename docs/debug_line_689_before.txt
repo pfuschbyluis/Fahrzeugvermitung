@@ -1,0 +1,80 @@
+651:         NotifyPlayer(src, 'Der Zielspieler ist nicht verfügbar.', 'error')
+652:         return
+653:     end
+654: 
+655:     TriggerClientEvent('MB_Fahrzeugvermitung:openStoredContract', targetSrc, contract, false)
+656:     NotifyPlayer(src, 'Mietvertrag gezeigt.', 'success')
+657:     NotifyPlayer(targetSrc, ('%s hat dir einen Mietvertrag gezeigt.'):format(GetCharacterName(src)), 'inform')
+658: end)
+659: 
+660: 
+661: RegisterNetEvent('MB_Fahrzeugvermitung:openContractItem', function(contractId)
+662:     local src = source
+663:     local identifier = GetIdentifier(src)
+664:     contractId = Trim(contractId)
+665: 
+666:     local contract = nil
+667: 
+668:     -- QBCore / ox_inventory: Vertrags-ID kommt über Item-Metadaten
+669:     if contractId ~= '' then
+670:         contract = GetContractById(contractId)
+671:     end
+672: 
+673:     -- Standard ESX hat oft keine Item-Metadaten:
+674:     -- Dann wird der neueste Vertrag des Spielers geöffnet.
+675:     if not contract or contract.identifier ~= identifier then
+676:         contract = GetLatestPlayerContract(identifier)
+677:     end
+678: 
+679:     if not contract then
+680:         NotifyPlayer(src, 'Kein Mietvertrag gefunden. Du bekommst einen Vertrag erst nach erfolgreicher Miete.', 'error')
+681:         return
+682:     end
+683: 
+684:     TriggerClientEvent('MB_Fahrzeugvermitung:openStoredContract', src, contract, true)
+685: end)
+686: 
+687: 
+688: 
+689:     end
+690: 
+691:     return false
+692: end
+693: 
+694: 
+695: 
+696: 
+697: 
+698: 
+699: 
+700: 
+701: -- ============================================================
+702: -- ADMIN-ORTE / NPC-STANDORTE
+703: -- Muss VOR requestAdminData/adminAction definiert sein.
+704: -- ============================================================
+705: local function BuildAdminLocations()
+706:     local list = {}
+707: 
+708:     for _, loc in ipairs(Config.Locations or {}) do
+709:         local coords = loc.coords or loc.position or { x = 0.0, y = 0.0, z = 0.0 }
+710: 
+711:         list[#list + 1] = {
+712:             key = loc.key or loc.name or ('config_' .. tostring(#list + 1)),
+713:             name = loc.label or loc.name or loc.key or 'Mietstation',
+714:             label = loc.label or loc.name or loc.key or 'Mietstation',
+715:             coords = {
+716:                 x = coords.x or coords[1] or 0.0,
+717:                 y = coords.y or coords[2] or 0.0,
+718:                 z = coords.z or coords[3] or 0.0,
+719:             },
+720:             heading = loc.heading or 0.0,
+721:             pedModel = loc.pedModel or (Config.AdminLocationPed and Config.AdminLocationPed.DefaultModel) or 's_m_m_autoshop_01',
+722:             source = 'config'
+723:         }
+724:     end
+725: 
+726:     for _, loc in ipairs(adminStore.locations or {}) do
+727:         list[#list + 1] = loc
+728:     end
+729: 
+730:     return list

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+  <rect width="200" height="120" rx="10" fill="#f6f8fa"></rect>
+  <g fill="none" stroke="#c7d1dd" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M48 74l9-24a10 10 0 0 1 9.4-6.6h67.2A10 10 0 0 1 143 50l9 24"></path>
+    <path d="M44 74h112a6 6 0 0 1 6 6v14h-18v-8H56v8H38V80a6 6 0 0 1 6-6z"></path>
+    <circle cx="70" cy="62" r="1.5"></circle>
+    <circle cx="130" cy="62" r="1.5"></circle>
+  </g>
+  <text x="100" y="112" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="11" fill="#94a3b8">Kein Bild</text>
+</svg>
