@@ -133,6 +133,13 @@
     return du.label || formatDurationLabel(du.minutes);
   }
 
+  function formatMultiplierInput(v) {
+    const n = Math.max(0.1, Number(v) || 1);
+    const rounded = Math.round(n * 100) / 100;
+    if (Number.isInteger(rounded)) return String(rounded);
+    return rounded.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  }
+
   function post(endpoint, body) {
     if (!IN_GAME) {
       return Promise.resolve(Demo.handle(endpoint, body || {}));
@@ -1174,15 +1181,23 @@
       <div class="tab-head">
         <div class="tab-head-text">
           <span class="tab-title">Mietdauern</span>
-          <span class="tab-sub">Bezeichnung wird automatisch aus den Minuten erzeugt (z. B. 15 → „15 Minuten“)</span>
+          <span class="tab-sub">Anzeige wird automatisch aus den Minuten erzeugt · Preis = Grundpreis × Faktor</span>
         </div>
-        <button class="btn btn-primary" id="btn-save-durations">Alle speichern</button>
+        <div class="tab-head-actions">
+          <button class="btn btn-secondary btn-sm" id="btn-add-duration">Hinzufügen</button>
+          <button class="btn btn-primary" id="btn-save-durations">Speichern</button>
+        </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-body" id="duration-rows">${rows}</div>
-        <div class="panel-head" style="border-top:1px solid var(--border); border-bottom:none;">
-          <button class="btn btn-secondary btn-sm" id="btn-add-duration">Zeile hinzufügen</button>
+      <div class="panel duration-panel">
+        <div class="duration-table">
+          <div class="duration-table-head" aria-hidden="true">
+            <span>Anzeige</span>
+            <span>Minuten</span>
+            <span>Faktor</span>
+            <span></span>
+          </div>
+          <div class="duration-list" id="duration-rows">${rows || '<div class="duration-empty">Noch keine Mietdauern konfiguriert.</div>'}</div>
         </div>
       </div>
     `;
@@ -1191,12 +1206,14 @@
 
     $('#btn-add-duration').addEventListener('click', () => {
       const rowsWrap = $('#duration-rows');
+      const empty = $('.duration-empty', rowsWrap);
+      if (empty) empty.remove();
       rowsWrap.insertAdjacentHTML('beforeend', durationRowHTML({ minutes: 30, multiplier: 1.0 }));
       bindDurationRows(wrap);
     });
 
     $('#btn-save-durations').addEventListener('click', () => {
-      const list = $$('.form-row-inline', wrap).map((row) => ({
+      const list = $$('.duration-row', wrap).map((row) => ({
         minutes: Math.max(1, Math.floor(Number($('[data-du-minutes]', row).value))),
         multiplier: Math.max(0.1, Number($('[data-du-mult]', row).value)),
       })).filter((x) => Number.isFinite(x.minutes) && Number.isFinite(x.multiplier));
@@ -1208,18 +1225,13 @@
 
   function durationRowHTML(du) {
     const minutes = Math.max(1, Math.floor(Number(du.minutes) || 15));
+    const mult = formatMultiplierInput(du.multiplier);
     return `
-      <div class="form-row-inline form-row-durations">
-        <div class="field">
-          <label class="field-label">Mietdauer (Minuten)</label>
-          <input class="input" data-du-minutes type="number" min="1" step="1" value="${esc(minutes)}" />
-          <span class="field-hint duration-preview">${esc(formatDurationLabel(minutes))}</span>
-        </div>
-        <div class="field">
-          <label class="field-label">Faktor</label>
-          <input class="input" data-du-mult type="number" min="0.1" step="0.1" value="${esc(du.multiplier)}" />
-        </div>
-        <button class="btn btn-icon" data-du-remove aria-label="Entfernen" style="height:40px;">
+      <div class="duration-row">
+        <span class="duration-label" data-du-preview>${esc(formatDurationLabel(minutes))}</span>
+        <input class="input input-compact" data-du-minutes type="number" min="1" step="1" value="${esc(minutes)}" aria-label="Minuten" />
+        <input class="input input-compact" data-du-mult type="number" min="0.1" step="0.1" value="${esc(mult)}" aria-label="Faktor" />
+        <button class="btn btn-icon btn-sm btn-ghost duration-remove" data-du-remove aria-label="Entfernen">
           <svg viewBox="0 0 16 16" class="ico"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.2a1 1 0 0 0 1 .8h3.8a1 1 0 0 0 1-.8l.6-8.2"/></svg>
         </button>
       </div>
@@ -1230,16 +1242,30 @@
     $$('[data-du-remove]', wrap).forEach((b) => {
       if (b.dataset.bound) return;
       b.dataset.bound = '1';
-      b.addEventListener('click', () => b.closest('.form-row-inline').remove());
+      b.addEventListener('click', () => {
+        const row = b.closest('.duration-row');
+        if (row) row.remove();
+        const list = $('#duration-rows');
+        if (list && !list.children.length) {
+          list.innerHTML = '<div class="duration-empty">Noch keine Mietdauern konfiguriert.</div>';
+        }
+      });
     });
     $$('[data-du-minutes]', wrap).forEach((input) => {
       if (input.dataset.boundPreview) return;
       input.dataset.boundPreview = '1';
       input.addEventListener('input', () => {
-        const preview = input.closest('.field')?.querySelector('.duration-preview');
+        const preview = input.closest('.duration-row')?.querySelector('[data-du-preview]');
         if (preview) {
           preview.textContent = formatDurationLabel(Math.max(1, Math.floor(Number(input.value) || 0)));
         }
+      });
+    });
+    $$('[data-du-mult]', wrap).forEach((input) => {
+      if (input.dataset.boundFormat) return;
+      input.dataset.boundFormat = '1';
+      input.addEventListener('blur', () => {
+        input.value = formatMultiplierInput(input.value);
       });
     });
   }

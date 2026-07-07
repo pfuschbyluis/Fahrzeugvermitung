@@ -1068,8 +1068,92 @@ html[data-theme="dark"] .contract-viewer-overlay {
   align-items: end;
 }
 
-.form-row-durations {
-  grid-template-columns: 1fr 110px 40px;
+/* Mietdauern-Tab */
+.tab-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.duration-panel .panel-body { padding: 0; }
+
+.duration-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.duration-table-head,
+.duration-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 96px 96px 40px;
+  gap: 12px;
+  align-items: center;
+}
+
+.duration-table-head {
+  padding: 14px 18px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.duration-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.duration-row {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 120ms;
+}
+
+.duration-row:last-child { border-bottom: none; }
+.duration-row:hover { background: var(--surface-2); }
+
+.duration-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.input-compact {
+  height: 36px;
+  padding: 0 10px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.input-compact[data-du-mult] { text-align: right; }
+
+.duration-remove {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--muted);
+}
+
+.duration-remove:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.duration-empty {
+  padding: 32px 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1349,7 +1433,8 @@ html[data-theme="dark"] .theme-indicator-dot {
 @media (max-width: 560px) {
   .screen-header, .screen-body, .screen-footer { padding-left: 16px; padding-right: 16px; }
   .form-row-inline { grid-template-columns: 1fr 80px 80px 40px; }
-  .form-row-durations { grid-template-columns: 1fr 80px 40px; }
+  .duration-table-head,
+  .duration-row { grid-template-columns: 1fr 72px 72px 36px; gap: 8px; }
 }
 
 /* Scrollbars dezent */
