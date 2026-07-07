@@ -46,6 +46,37 @@
   --font: 'MainFont', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* Dunkelmodus — wird per data-theme="dark" gesetzt (System-Erkennung in script.js) */
+html[data-theme="dark"] {
+  --green-700: #7eb0ff;
+  --green-600: #5b8def;
+  --green-500: #4a7de0;
+  --green-100: #1e2d4a;
+  --green-50:  #162238;
+
+  --ink:        #e8edf5;
+  --ink-soft:   #c5d0e0;
+  --muted:      #8b9cb3;
+  --faint:      #6b7d96;
+
+  --bg:         #0f1419;
+  --surface:    #1a2230;
+  --surface-2:  #232d3d;
+  --border:     #2d3a4d;
+  --border-strong: #3d4f66;
+
+  --danger:     #f07066;
+  --danger-bg:  #3a1f1d;
+  --warn:       #e0b04a;
+  --warn-bg:    #3a2f14;
+
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+  --shadow:    0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"]  { color-scheme: dark; }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 * { font-family: var(--font); }
 
@@ -1215,6 +1246,58 @@ html, body {
 
 .demo-bar button:hover { color: #fff; }
 .demo-bar button.active { background: var(--green-600); color: #fff; }
+
+.demo-bar .theme-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.theme-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fbbf24;
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+
+html[data-theme="dark"] .theme-indicator-dot {
+  background: #6366f1;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.6);
+}
+
+.theme-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.theme-info-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.theme-info-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
 
 /* ════════════════════════════════════════════════════════════
    RESPONSIVE

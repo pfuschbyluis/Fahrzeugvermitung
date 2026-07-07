@@ -9,6 +9,59 @@
   // ────────────────────────────────────────────────
   const IN_GAME = typeof window.GetParentResourceName === 'function';
 
+  // ────────────────────────────────────────────────
+  // FARBSCHEMA — System Hell / Dunkel erkennen
+  // ────────────────────────────────────────────────
+  const ColorScheme = (function () {
+    const MQ = window.matchMedia('(prefers-color-scheme: dark)');
+    let current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    const listeners = new Set();
+
+    function detect() {
+      return MQ.matches ? 'dark' : 'light';
+    }
+
+    function label(scheme) {
+      return (scheme || current) === 'dark' ? 'Dunkel' : 'Hell';
+    }
+
+    function apply(scheme) {
+      scheme = scheme === 'dark' ? 'dark' : 'light';
+      const changed = scheme !== current;
+      current = scheme;
+      document.documentElement.dataset.theme = scheme;
+      document.documentElement.style.colorScheme = scheme;
+      listeners.forEach((fn) => fn(scheme));
+      document.dispatchEvent(new CustomEvent('mb-colorscheme', { detail: { scheme } }));
+      if (changed && IN_GAME) post('colorSchemeChanged', { scheme });
+      return scheme;
+    }
+
+    function init() {
+      apply(detect());
+      if (IN_GAME) post('colorSchemeChanged', { scheme: current });
+      const onChange = (e) => apply(e.matches ? 'dark' : 'light');
+      if (typeof MQ.addEventListener === 'function') MQ.addEventListener('change', onChange);
+      else if (typeof MQ.addListener === 'function') MQ.addListener(onChange);
+    }
+
+    init();
+
+    return {
+      get: () => current,
+      detect,
+      isDark: () => current === 'dark',
+      isLight: () => current === 'light',
+      label: () => label(current),
+      onChange(fn) {
+        listeners.add(fn);
+        return () => listeners.delete(fn);
+      },
+    };
+  })();
+
+  window.MBColorScheme = ColorScheme;
+
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
@@ -429,7 +482,7 @@
 
     const ctx = c.getContext('2d');
     ctx.font = `italic ${fontSize}px ${SIGNATURE_FONTS}`;
-    ctx.fillStyle = '#1a2b52';
+    ctx.fillStyle = ColorScheme.isDark() ? '#c8d6ee' : '#1a2b52';
     ctx.textBaseline = 'middle';
     ctx.save();
     ctx.translate(30, c.height / 2);
@@ -1184,6 +1237,18 @@
 
       <div class="panel">
         <div class="panel-body">
+          <div class="theme-info" id="settings-theme-info">
+            <span class="theme-info-label">System-Farbschema</span>
+            <span class="theme-info-value">
+              <span class="theme-indicator-dot" aria-hidden="true"></span>
+              <span id="settings-theme-label">${esc(ColorScheme.label())}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-body">
           <div class="form-grid">
             <div class="field">
               <label class="field-label" for="set-cooldown">Cooldown (Minuten)</label>
@@ -1203,6 +1268,12 @@
         </div>
       </div>
     `;
+
+    const themeLabel = $('#settings-theme-label');
+    const refreshThemeLabel = () => {
+      if (themeLabel) themeLabel.textContent = ColorScheme.label();
+    };
+    ColorScheme.onChange(refreshThemeLabel);
 
     $('#btn-save-settings').addEventListener('click', () => {
       const data = {
@@ -1469,11 +1540,21 @@
     buildBar() {
       const bar = $('#demo-bar');
       bar.classList.remove('hidden');
+      const renderThemeIndicator = () => {
+        const el = $('#demo-theme-indicator');
+        if (el) el.textContent = ColorScheme.label();
+      };
+
       bar.innerHTML = `
         <button data-demo="rental" class="active">Miet-UI</button>
         <button data-demo="admin">Admin-Menü</button>
         <button data-demo="hud">HUD</button>
+        <span class="theme-indicator" title="System-Farbschema">
+          <span class="theme-indicator-dot" aria-hidden="true"></span>
+          <span id="demo-theme-indicator">${esc(ColorScheme.label())}</span>
+        </span>
       `;
+      ColorScheme.onChange(renderThemeIndicator);
       let hudTimer = null;
 
       bar.addEventListener('click', (e) => {

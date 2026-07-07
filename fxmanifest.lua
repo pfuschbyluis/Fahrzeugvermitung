@@ -13,6 +13,11 @@ client_scripts {
     'client/main.lua'
 }
 
+exports {
+    'GetUIColorScheme',
+    'IsUIDarkMode'
+}
+
 server_scripts {
     'server/main.lua'
 }

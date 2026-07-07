@@ -35,6 +35,7 @@ local currentLocation = nil
 local spawnedPeds = {}
 local activeRentalVehicle = nil -- { entity, netId, deadlineTick, totalSeconds, vehicleLabel }
 local hudVisible = false
+local uiColorScheme = 'light' -- 'light' | 'dark', gemeldet von der NUI
 
 -- ============================================================
 -- HILFSFUNKTIONEN: TARGET WRAPPER
@@ -821,6 +822,24 @@ RegisterNUICallback('closeUI', function(_, cb)
     uiOpen = false
     SetNuiFocus(false, false)
     cb({ success = true })
+end)
+
+--- System-Farbschema der NUI (Hell/Dunkel), von prefers-color-scheme abgeleitet.
+RegisterNUICallback('colorSchemeChanged', function(data, cb)
+    local scheme = data and data.scheme
+    if scheme == 'dark' or scheme == 'light' then
+        uiColorScheme = scheme
+    end
+    cb({ success = true, scheme = uiColorScheme })
+end)
+
+--- Export: aktuelles UI-Farbschema abfragen ('light' oder 'dark').
+exports('GetUIColorScheme', function()
+    return uiColorScheme
+end)
+
+exports('IsUIDarkMode', function()
+    return uiColorScheme == 'dark'
 end)
 
 
