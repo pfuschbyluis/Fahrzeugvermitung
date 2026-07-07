@@ -241,6 +241,7 @@ RegisterNetEvent('MB_Fahrzeugvermitung:openRentalUI', function(payload)
     SendNUIMessage({
         action = 'openUI',
         locationLabel = payload.locationLabel or (currentLocation and currentLocation.label) or 'Standort',
+        playerName = payload.playerName,
         vehicles = payload.vehicles or {},
         durations = payload.durations or Config.RentalDurations,
         payments = payload.payments or Config.PaymentMethods,
@@ -310,6 +311,12 @@ end)
 RegisterNetEvent('MB_Fahrzeugvermitung:receiveCharacterName', function(name)
     SendNUIMessage({ action = 'setPlayerName', name = name })
 end)
+
+RegisterNUICallback('requestPlayerName', function(_, cb)
+    TriggerServerEvent('MB_Fahrzeugvermitung:getCharacterName')
+    cb({ success = true })
+end)
+
 RegisterNetEvent('MB_Fahrzeugvermitung:openStoredContract', function(contractData, allowShow)
     OpenStoredContract(contractData, allowShow)
 end)

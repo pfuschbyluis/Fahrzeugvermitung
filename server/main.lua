@@ -211,16 +211,38 @@ end
 -- CHARAKTERNAME
 -- ============================================================
 local function GetCharacterName(src)
-    local playerObj = GetPlayerObj(src)
-    if not playerObj then return GetPlayerName(src) or 'Unbekannt' end
+    local function fullName(first, last)
+        first = Trim(first)
+        last = Trim(last)
+        if first == '' then return nil end
+        if last == '' then return first end
+        return ('%s %s'):format(first, last)
+    end
 
-    if Config.Framework == 'esx' then
-        local name = playerObj.getName and playerObj.getName() or nil
-        if name and name ~= '' then return name end
-    elseif Config.Framework == 'qbcore' then
+    local playerObj = GetPlayerObj(src)
+
+    if Config.Framework == 'esx' and playerObj then
+        if playerObj.getName then
+            local name = Trim(playerObj.getName())
+            if name ~= '' then return name end
+        end
+        if playerObj.get then
+            local name = fullName(
+                playerObj.get('firstName') or playerObj.get('firstname'),
+                playerObj.get('lastName') or playerObj.get('lastname')
+            )
+            if name then return name end
+        end
+        if type(playerObj.variables) == 'table' then
+            local v = playerObj.variables
+            local name = fullName(v.firstName or v.firstname, v.lastName or v.lastname)
+            if name then return name end
+        end
+    elseif Config.Framework == 'qbcore' and playerObj then
         local ci = playerObj.PlayerData and playerObj.PlayerData.charinfo
-        if ci and ci.firstname then
-            return ('%s %s'):format(ci.firstname, ci.lastname or '')
+        if ci then
+            local name = fullName(ci.firstname, ci.lastname)
+            if name then return name end
         end
     end
 
@@ -759,7 +781,7 @@ local function VehiclePayload(key, vehicle, custom)
     }
 end
 
-local function BuildLocationPayload(locationName)
+local function BuildLocationPayload(locationName, src)
     local loc = FindLocation(locationName)
     if not loc then return nil end
 
@@ -773,6 +795,8 @@ local function BuildLocationPayload(locationName)
 
     return {
         locationLabel = loc.label,
+        locationName = loc.name or loc.key,
+        playerName = src and GetCharacterName(src) or nil,
         vehicles = vehicles,
         locations = BuildAdminLocations(),
         durations = GetRentalDurations(),
@@ -1200,7 +1224,7 @@ end)
 -- ============================================================
 RegisterNetEvent('MB_Fahrzeugvermitung:requestOpenData', function(locationName)
     local src = source
-    local payload = BuildLocationPayload(locationName)
+    local payload = BuildLocationPayload(locationName, src)
     if not payload then
         DenyRental(src, 'Ungültiger Vermietungsstandort.', {
             description = ('Ungültiger Vermietungsstandort: %s'):format(tostring(locationName)),
@@ -1920,7 +1944,7 @@ RegisterNetEvent('MB_Fahrzeugvermitung:server:openRentalAtLocation', function(lo
     TriggerClientEvent('MB_Fahrzeugvermitung:client:openRental', src, {
         location = locationKey,
         locationLabel = label,
-        playerName = GetPlayerName(src),
+        playerName = GetCharacterName(src),
         vehicles = MB_SAFE_GetVehicles(),
         durations = MB_SAFE_GetDurations(),
         payments = MB_SAFE_GetPayments()

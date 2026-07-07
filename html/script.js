@@ -344,7 +344,15 @@
     screens[name].classList.remove('hidden');
   }
 
+  function applyPlayerName(name) {
+    if (!name || name === 'Unbekannt') return;
+    rental.playerName = name;
+    const tenantEl = $('#contract-tenant');
+    if (tenantEl) tenantEl.textContent = name;
+  }
+
   function openRentalApp(data) {
+    data = data || {};
     rental.vehicles = data.vehicles || [];
     rental.durations = data.durations || [];
     rental.payments = data.payments || [];
@@ -354,6 +362,9 @@
     rental.viewerMode = false;
     rental.canShowContract = false;
     rental.currentContractId = null;
+
+    if (data.playerName) applyPlayerName(data.playerName);
+    else post('requestPlayerName');
 
     $('#location-label').textContent = data.locationLabel || 'Standort';
     renderVehicleGrid();
@@ -541,6 +552,7 @@
   $('#btn-prepare-contract').addEventListener('click', () => {
     if (rental.selectedDurationIdx === null) return toast('Bitte wähle eine Mietdauer aus.', 'error');
     if (rental.selectedPaymentId === null) return toast('Bitte wähle eine Zahlungsmethode aus.', 'error');
+    if (!rental.playerName || rental.playerName === 'Unbekannt') post('requestPlayerName');
     renderContract();
     showScreen('contract');
   });
@@ -555,7 +567,7 @@
 
     $('#contract-id').textContent = '';
     $('#contract-id').style.display = 'none';
-    $('#contract-tenant').textContent = rental.playerName;
+    $('#contract-tenant').textContent = rental.playerName && rental.playerName !== 'Unbekannt' ? rental.playerName : '—';
     $('#contract-date').textContent = formatDate();
     const st = $('#contract-status');
     st.textContent = 'Unsigniert';
@@ -611,7 +623,7 @@
     }
 
     showScreen('signature');
-    const name = rental.playerName || 'Unbekannt';
+    const name = rental.playerName && rental.playerName !== 'Unbekannt' ? rental.playerName : 'Mieter';
     $('#signing-name').textContent = name;
     $('#signing-status').textContent = 'Signatur wird erstellt …';
 
@@ -1713,9 +1725,15 @@
     switch (data.action) {
       case 'openUI':
       case 'openRental':
-      case 'rentalOpen':
-        openRentalApp(data.data || data.payload || data);
+      case 'rentalOpen': {
+        const payload = data.data || data.payload || data;
+        openRentalApp({
+          ...payload,
+          playerName: data.playerName || payload.playerName,
+          locationLabel: data.locationLabel || payload.locationLabel,
+        });
         break;
+      }
       case 'forceOpenAdmin':
       case 'openAdmin':
       case 'adminOpen':
@@ -1724,8 +1742,7 @@
         break;
       case 'closeUI':         closeAll(); break;
       case 'setPlayerName':
-        rental.playerName = data.name || 'Unbekannt';
-        $('#contract-tenant').textContent = rental.playerName;
+        applyPlayerName(data.name);
         break;
       case 'rentalDenied':
         showScreen('contract');
