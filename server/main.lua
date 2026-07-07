@@ -307,6 +307,9 @@ local function NormalizeDurations(list)
 end
 
 local function GetRentalDurations()
+    if type(adminStore.durations) == 'table' and #adminStore.durations > 0 then
+        return NormalizeDurations(adminStore.durations)
+    end
     return NormalizeDurations(Config.RentalDurations)
 end
 
@@ -325,7 +328,20 @@ local function NormalizeStore(data)
     if type(data) ~= 'table' then data = {} end
     if type(data.vehicles) ~= 'table' then data.vehicles = {} end
     if type(data.locations) ~= 'table' then data.locations = {} end
+    if type(data.deletedConfigVehicles) ~= 'table' then data.deletedConfigVehicles = {} end
     return data
+end
+
+local function ApplyAdminStoreToConfig()
+    if type(adminStore.durations) == 'table' and #adminStore.durations > 0 then
+        Config.RentalDurations = NormalizeDurations(adminStore.durations)
+    end
+    if type(adminStore.settings) == 'table' then
+        local s = adminStore.settings
+        if s.cooldown ~= nil then Config.Cooldown = s.cooldown end
+        if s.maxActive ~= nil then Config.MaxActiveRentalsPerPlayer = s.maxActive end
+        if s.warningTime ~= nil then Config.ExpireWarningTime = s.warningTime end
+    end
 end
 
 local function NormalizeContractStore(data)
@@ -536,12 +552,13 @@ local function LoadAdminStore()
             adminStore = NormalizeStore(decoded)
         else
             print(('[MB_Fahrzeugvermitung] %s konnte nicht gelesen werden. Starte mit leerem Admin-Speicher.'):format(file))
-            adminStore = { vehicles = {}, locations = {} }
+            adminStore = { vehicles = {}, locations = {}, deletedConfigVehicles = {} }
         end
     else
-        adminStore = { vehicles = {}, locations = {} }
+        adminStore = { vehicles = {}, locations = {}, deletedConfigVehicles = {} }
         SaveResourceFile(GetCurrentResourceName(), file, json.encode(adminStore), -1)
     end
+    ApplyAdminStoreToConfig()
 end
 
 
@@ -1324,6 +1341,8 @@ RegisterNetEvent('MB_Fahrzeugvermitung:adminAction', function(action, data)
             return
         end
         Config.RentalDurations = clean
+        adminStore.durations = clean
+        SaveAdminStore()
         NotifyAdmin(src, 'Mietdauern gespeichert.', 'success')
         BroadcastAdminPayload(src)
         return
@@ -1333,6 +1352,12 @@ RegisterNetEvent('MB_Fahrzeugvermitung:adminAction', function(action, data)
         Config.Cooldown = math.max(0, math.floor(tonumber(data.cooldown) or 0))
         Config.MaxActiveRentalsPerPlayer = math.max(1, math.floor(tonumber(data.maxActive) or 1))
         Config.ExpireWarningTime = math.max(10, math.floor(tonumber(data.warningTime) or 60))
+        adminStore.settings = {
+            cooldown = Config.Cooldown,
+            maxActive = Config.MaxActiveRentalsPerPlayer,
+            warningTime = Config.ExpireWarningTime,
+        }
+        SaveAdminStore()
         NotifyAdmin(src, 'Einstellungen gespeichert.', 'success')
         BroadcastAdminPayload(src)
         return

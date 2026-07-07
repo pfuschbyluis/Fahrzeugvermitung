@@ -1,71 +1,86 @@
 Config = {}
 
+--[[
+  WO WIRD WAS GESPEICHERT?
+  ─────────────────────────────────────────────────────────────
+  MySQL (oxmysql)     → nur Miet-Historie / Statistik (optional)
+  data/admin_vehicles.json → Fahrzeuge, Orte, Mietdauern, Einstellungen (Admin-Panel)
+  data/rental_contracts.json → unterschriebene Mietverträge
+  config.lua          → Server-Grundeinstellungen + Startwerte (beim ersten Start)
+  ─────────────────────────────────────────────────────────────
+  Alles was du im Admin-Panel änderst, landet in der JSON-Datei — NICHT in MySQL.
+  Die Einträge unten (Fahrzeuge, Orte, Mietdauern) sind nur Standardwerte für den
+  ersten Start. Danach kannst du sie ingame verwalten.
+]]
+
 -- ============================================================
 -- FRAMEWORK
 -- ============================================================
 Config.Framework = 'esx'          -- 'esx' oder 'qbcore'
-Config.ESXExport = 'es_extended'  -- Resource-Name von ESX
-Config.QBExport  = 'qb-core'      -- Resource-Name von QBCore
+Config.ESXExport = 'es_extended'
+Config.QBExport  = 'qb-core'
 
 -- ============================================================
 -- INTERAKTION
 -- ============================================================
-Config.UseTarget   = true         -- true = ox_target/qtarget, false = Taste drücken (E)
+Config.UseTarget   = true         -- true = ox_target/qtarget, false = Taste E
 Config.TargetSystem = 'ox_target' -- 'ox_target' oder 'qtarget'
-Config.InteractKey  = 38          -- E-Taste, nur relevant wenn UseTarget = false
-Config.InteractDistance = 8.0     -- Entfernung, ab der die NPCs/Marker geladen werden
+Config.InteractKey  = 38
+Config.InteractDistance = 8.0
 
-Config.UseOxLib = true            -- true = ox_lib Notifications/Progressbar, false = eigenes NUI-Notify
+Config.UseOxLib = true
+
+-- Target für Admin-NPCs (Miet-Orte nutzen Config.UseTarget / Config.TargetSystem)
+Config.UseOxTarget = true
+Config.TargetResource = 'ox_target'
 
 -- ============================================================
--- DATENBANK (optional)
+-- DATENBANK (optional — nur Miet-Historie, nicht Admin-Daten!)
 -- ============================================================
--- Wird NUR benötigt, wenn du abgeschlossene/aktive Vermietungen dauerhaft
--- speichern willst (z.B. für Statistiken oder einen Admin-Überblick).
--- Für den normalen Betrieb (Miete -> Fahrzeug -> Ablauf -> löschen) wird
--- KEINE Datenbank benötigt.
 Config.UseDatabase = false
 Config.DatabaseTable = 'MB_Fahrzeugvermitung_history'
-
--- Beim ersten Start werden Tabellen und (bei ESX) Items automatisch angelegt,
--- sobald oxmysql verfügbar ist. Manuelles Importieren von install.sql entfällt.
-Config.AutoDatabaseSetup = true
--- Aktiviert die Mietprotokollierung automatisch, wenn oxmysql läuft und das Setup erfolgreich war.
-Config.AutoEnableDatabase = true
+Config.AutoDatabaseSetup = true   -- Tabelle + ESX-Item beim Start automatisch anlegen
+Config.AutoEnableDatabase = true  -- Protokollierung aktivieren wenn oxmysql läuft
 
 -- ============================================================
--- MIETVERHALTEN
+-- MIETVERHALTEN (Startwerte — Einstellungen-Tab überschreibt in JSON)
 -- ============================================================
-Config.DeleteVehicleOnExpire = true   -- Fahrzeug nach Mietablauf automatisch löschen
-Config.ExpireWarningTime = 60         -- Sekunden vor Ablauf, in denen gewarnt wird
-Config.GiveKeys = true                -- Fahrzeugschlüssel über Keys-System vergeben
-Config.KeysSystem = 'auto'            -- 'auto', 'qb-vehiclekeys', 'qs-vehiclekeys', 'wasabi_carlock', 'none'
-Config.Cooldown = 0                   -- Cooldown in Minuten zwischen zwei Anmietungen, 0 = deaktiviert
-Config.MaxActiveRentalsPerPlayer = 1  -- Wie viele gemietete Fahrzeuge gleichzeitig aktiv sein dürfen
-
+Config.DeleteVehicleOnExpire = true
+Config.ExpireWarningTime = 60
+Config.GiveKeys = true
+Config.KeysSystem = 'auto'       -- 'auto', 'qb-vehiclekeys', 'qs-vehiclekeys', 'wasabi_carlock', 'none'
+Config.Cooldown = 0
+Config.MaxActiveRentalsPerPlayer = 1
 
 -- ============================================================
 -- ADMINPANEL
 -- ============================================================
-Config.AdminCommand = 'rentaladmin'                 -- Ingame-Command: /rentaladmin
-Config.AdminAce = 'MB_Fahrzeugvermitung.admin'          -- add_ace group.admin MB_Fahrzeugvermitung.admin allow
-Config.AdminGroups = { 'admin', 'superadmin', 'god' } -- ESX/QBCore Gruppen mit Zugriff
-Config.AdminStorageFile = 'data/admin_vehicles.json'     -- Datei für ingame hinzugefügte Fahrzeuge
+Config.AdminCommand = 'rentaladmin'
+Config.AdminAce = 'MB_Fahrzeugvermitung.admin'
+Config.AdminGroups = { 'admin', 'superadmin', 'god' }
+Config.AdminStorageFile = 'data/admin_vehicles.json'  -- Admin-Daten (JSON, nicht MySQL)
 
+Config.AdminLocationPed = {
+    Enabled = true,
+    DefaultModel = 's_m_m_autoshop_01',
+    Scenario = 'WORLD_HUMAN_CLIPBOARD',
+    InteractDistance = 2.2,
+    SpawnDistance = 80.0
+}
 
 -- ============================================================
 -- MIETVERTRAG ALS ITEM
 -- ============================================================
 Config.ContractItem = {
     Enabled = true,
-    Name = 'mietvertrag',        -- Item-Name im Inventar
+    Name = 'mietvertrag',
     Inventory = 'ox_inventory',  -- 'framework', 'ox_inventory' oder 'auto'
-    ShowDistance = 3.0,          -- Distanz, um anderen Spielern den Vertrag zu zeigen
+    ShowDistance = 3.0,
     StorageFile = 'data/rental_contracts.json'
 }
 
 -- ============================================================
--- ZAHLUNGSMETHODEN
+-- ZAHLUNGSMETHODEN (fest in Config — nicht im Admin-Panel)
 -- ============================================================
 Config.PaymentMethods = {
     { id = 'cash', label = 'Bar',   account = 'money' },
@@ -73,8 +88,10 @@ Config.PaymentMethods = {
 }
 
 -- ============================================================
--- MIETDAUER (Preis-Multiplikator wird auf den Fahrzeug-Grundpreis angewendet)
+-- STARTWERTE (optional — werden nach Admin-Änderung aus JSON geladen)
 -- ============================================================
+
+-- Mietdauern: nur Standard beim ersten Start, danach data/admin_vehicles.json
 Config.RentalDurations = {
     { minutes = 15,  multiplier = 1.0 },
     { minutes = 30,  multiplier = 1.8 },
@@ -82,10 +99,7 @@ Config.RentalDurations = {
     { minutes = 120, multiplier = 6.0 },
 }
 
--- ============================================================
--- FAHRZEUGE
--- Bild-Dateien liegen in html/img/ und werden per Dateiname referenziert.
--- ============================================================
+-- Fahrzeuge: Config = Basis-Katalog, Admin-Fahrzeuge kommen in JSON dazu
 Config.Vehicles = {
     quail = {
         label    = 'Devauchee Quail',
@@ -110,29 +124,22 @@ Config.Vehicles = {
     },
 }
 
--- ============================================================
--- VERMIETUNGSSTANDORTE
--- Jeder Standort verweist per Key auf Config.Vehicles.
--- Mehrere Standorte mit unterschiedlichem Fahrzeugangebot möglich.
--- ============================================================
+-- Standorte: Config = feste Orte mit NPC/Blip/Spawn, Admin-Orte kommen in JSON dazu
 Config.RentalLocations = {
     {
         name  = 'flughafen',
         label = 'Flughafen Vermietung',
-
         npc = {
             enabled = true,
             model   = 'a_m_m_business_01',
             coords  = vector4(-1035.0, -2733.5, 20.17, 240.0),
         },
-
         marker = {
             enabled = true,
             coords  = vector3(-1035.0, -2733.5, 19.17),
             size    = vector3(1.5, 1.5, 0.5),
             color   = { r = 0, g = 160, b = 90 },
         },
-
         blip = {
             enabled = true,
             coords  = vector3(-1035.0, -2733.5, 20.17),
@@ -141,30 +148,23 @@ Config.RentalLocations = {
             scale   = 0.8,
             label   = 'Fahrzeugvermietung',
         },
-
         spawnPoint = vector4(-1041.0, -2727.0, 20.17, 240.0),
-
-        -- Welche Fahrzeuge (Keys aus Config.Vehicles) an diesem Standort verfügbar sind
         vehicles = { 'quail', 'faggio2', 'faggio' },
     },
-
     {
         name  = 'strand',
         label = 'Strand Vermietung',
-
         npc = {
             enabled = true,
             model   = 'a_f_y_beach_01',
             coords  = vector4(-1339.0, -1108.0, 5.9, 20.0),
         },
-
         marker = {
             enabled = true,
             coords  = vector3(-1339.0, -1108.0, 4.9),
             size    = vector3(1.5, 1.5, 0.5),
             color   = { r = 0, g = 160, b = 90 },
         },
-
         blip = {
             enabled = true,
             coords  = vector3(-1339.0, -1108.0, 5.9),
@@ -173,24 +173,7 @@ Config.RentalLocations = {
             scale   = 0.8,
             label   = 'Fahrzeugvermietung',
         },
-
         spawnPoint = vector4(-1345.0, -1102.0, 4.9, 20.0),
-
         vehicles = { 'faggio2', 'faggio' },
     },
 }
-
-
--- Adminpanel-Orte / NPCs
-Config.AdminLocationPed = {
-    Enabled = true,
-    DefaultModel = 's_m_m_autoshop_01',
-    Scenario = 'WORLD_HUMAN_CLIPBOARD',
-    InteractDistance = 2.2,
-    SpawnDistance = 80.0
-}
-
-
--- ox_target für Miet-Orte
-Config.UseOxTarget = true
-Config.TargetResource = 'ox_target'
