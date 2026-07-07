@@ -249,13 +249,15 @@
   function closeModal() {
     modalOverlay.classList.add('hidden');
     modalEl.innerHTML = '';
+    modalEl.className = 'modal';
   }
 
   /**
-   * openModal({ title, bodyHTML, buttons: [{label, cls, onClick, close}] })
+   * openModal({ title, bodyHTML, size: 'lg', buttons: [{label, cls, onClick, close}] })
    * onClick erhält das Modal-Element; return false verhindert das Schließen.
    */
   function openModal(opts) {
+    modalEl.className = opts.size === 'lg' ? 'modal modal-lg' : 'modal';
     modalEl.innerHTML = `
       <div class="modal-head">
         <span class="modal-title">${esc(opts.title)}</span>
@@ -1098,6 +1100,7 @@
       : '<p class="field-hint">Keine Miet-Orte vorhanden — zuerst unter „Standorte“ anlegen.</p>';
 
     openModal({
+      size: 'lg',
       title: isNew ? 'Fahrzeug hinzufügen' : 'Fahrzeug bearbeiten',
       bodyHTML: `
         <div class="field">
@@ -1275,6 +1278,7 @@
     const spawn = location && location.spawnPoint ? location.spawnPoint : {};
 
     openModal({
+      size: 'lg',
       title: isNew ? 'Ort hinzufügen' : 'Ort bearbeiten',
       bodyHTML: `
         <div class="field">
@@ -1283,7 +1287,7 @@
         </div>
 
         <p class="field-section-label">NPC-Position</p>
-        <div class="form-grid">
+        <div class="form-grid-4">
           <div class="field">
             <label class="field-label" for="lm-x">X</label>
             <input class="input" id="lm-x" type="number" step="0.001" value="${esc(coords.x ?? '')}" />
@@ -1292,9 +1296,6 @@
             <label class="field-label" for="lm-y">Y</label>
             <input class="input" id="lm-y" type="number" step="0.001" value="${esc(coords.y ?? '')}" />
           </div>
-        </div>
-
-        <div class="form-grid">
           <div class="field">
             <label class="field-label" for="lm-z">Z</label>
             <input class="input" id="lm-z" type="number" step="0.001" value="${esc(coords.z ?? '')}" />
@@ -1314,7 +1315,7 @@
         <button class="btn btn-secondary btn-block" id="btn-use-current-coords" type="button">Aktuelle Position als NPC übernehmen</button>
 
         <p class="field-section-label">Spawnpunkt (Fahrzeug)</p>
-        <div class="form-grid">
+        <div class="form-grid-4">
           <div class="field">
             <label class="field-label" for="lm-spawn-x">Spawn X</label>
             <input class="input" id="lm-spawn-x" type="number" step="0.001" value="${esc(spawn.x ?? '')}" placeholder="optional" />
@@ -1323,9 +1324,6 @@
             <label class="field-label" for="lm-spawn-y">Spawn Y</label>
             <input class="input" id="lm-spawn-y" type="number" step="0.001" value="${esc(spawn.y ?? '')}" placeholder="optional" />
           </div>
-        </div>
-
-        <div class="form-grid">
           <div class="field">
             <label class="field-label" for="lm-spawn-z">Spawn Z</label>
             <input class="input" id="lm-spawn-z" type="number" step="0.001" value="${esc(spawn.z ?? '')}" placeholder="optional" />

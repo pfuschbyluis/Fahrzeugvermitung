@@ -1244,6 +1244,23 @@ html[data-theme="light"] .statusbar-trailing {
   gap: 14px;
 }
 
+.form-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.modal-lg .img-preview {
+  height: 100px;
+}
+
+.modal-lg .check-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px 16px;
+  max-height: none;
+}
+
 .form-row-inline {
   display: grid;
   grid-template-columns: 1fr 110px 110px 40px;
@@ -1352,11 +1369,18 @@ html[data-theme="light"] .statusbar-trailing {
 .modal {
   width: min(480px, 92vw);
   max-height: 88vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   animation: window-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.modal.modal-lg {
+  width: min(780px, 96vw);
+  max-height: 94vh;
 }
 
 .modal-head {
@@ -1366,10 +1390,19 @@ html[data-theme="light"] .statusbar-trailing {
   gap: 12px;
   padding: 18px 22px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .modal-title { font-size: 16px; font-weight: 800; color: var(--ink); }
-.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.modal-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
 
 .modal-foot {
   display: flex;
@@ -1378,6 +1411,7 @@ html[data-theme="light"] .statusbar-trailing {
   padding: 16px 22px;
   border-top: 1px solid var(--border);
   background: var(--surface-2);
+  flex-shrink: 0;
 }
 
 .modal-warn-text { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
@@ -1620,6 +1654,8 @@ html[data-theme="dark"] .theme-indicator-dot {
   .admin-brand, .admin-sidebar-foot { display: none; }
   .admin-nav { flex-direction: row; overflow-x: auto; padding: 10px; }
   .admin-nav-item { flex-shrink: 0; }
+  .form-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal.modal-lg { width: min(680px, 96vw); }
 }
 
 @media (max-width: 560px) {
