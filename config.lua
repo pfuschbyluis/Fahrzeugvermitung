@@ -6,11 +6,10 @@ Config = {}
   MySQL (oxmysql)     → nur Miet-Historie / Statistik (optional)
   data/admin_vehicles.json → Fahrzeuge, Orte, Mietdauern, Einstellungen (Admin-Panel)
   data/rental_contracts.json → unterschriebene Mietverträge
-  config.lua          → Server-Grundeinstellungen + Startwerte (beim ersten Start)
+  config.lua          → Server-Grundeinstellungen (Framework, Interaktion, DB, Admin)
   ─────────────────────────────────────────────────────────────
-  Alles was du im Admin-Panel änderst, landet in der JSON-Datei — NICHT in MySQL.
-  Die Einträge unten (Fahrzeuge, Orte, Mietdauern) sind nur Standardwerte für den
-  ersten Start. Danach kannst du sie ingame verwalten.
+  Fahrzeuge, Orte und Mietdauern werden im Admin-Panel verwaltet
+  und in data/admin_vehicles.json gespeichert — NICHT in MySQL.
 ]]
 
 -- ============================================================
@@ -88,7 +87,7 @@ Config.PaymentMethods = {
 }
 
 -- ============================================================
--- STARTWERTE (optional — werden nach Admin-Änderung aus JSON geladen)
+-- STARTWERTE (optional — danach aus data/admin_vehicles.json)
 -- ============================================================
 
 -- Mietdauern: nur Standard beim ersten Start, danach data/admin_vehicles.json
@@ -99,81 +98,6 @@ Config.RentalDurations = {
     { minutes = 120, multiplier = 6.0 },
 }
 
--- Fahrzeuge: Config = Basis-Katalog, Admin-Fahrzeuge kommen in JSON dazu
-Config.Vehicles = {
-    quail = {
-        label    = 'Devauchee Quail',
-        model    = 'quail',
-        price    = 250,
-        category = 'Sportwagen',
-        image    = 'img/quail.svg',
-    },
-    faggio2 = {
-        label    = 'Pegassi Faggio Sport',
-        model    = 'faggio2',
-        price    = 60,
-        category = 'Roller',
-        image    = 'img/faggio2.svg',
-    },
-    faggio = {
-        label    = 'Faggio',
-        model    = 'faggio',
-        price    = 40,
-        category = 'Roller',
-        image    = 'img/faggio.svg',
-    },
-}
-
--- Standorte: Config = feste Orte mit NPC/Blip/Spawn, Admin-Orte kommen in JSON dazu
-Config.RentalLocations = {
-    {
-        name  = 'flughafen',
-        label = 'Flughafen Vermietung',
-        npc = {
-            enabled = true,
-            model   = 'a_m_m_business_01',
-            coords  = vector4(-1035.0, -2733.5, 20.17, 240.0),
-        },
-        marker = {
-            enabled = true,
-            coords  = vector3(-1035.0, -2733.5, 19.17),
-            size    = vector3(1.5, 1.5, 0.5),
-            color   = { r = 0, g = 160, b = 90 },
-        },
-        blip = {
-            enabled = true,
-            coords  = vector3(-1035.0, -2733.5, 20.17),
-            sprite  = 225,
-            color   = 2,
-            scale   = 0.8,
-            label   = 'Fahrzeugvermietung',
-        },
-        spawnPoint = vector4(-1041.0, -2727.0, 20.17, 240.0),
-        vehicles = { 'quail', 'faggio2', 'faggio' },
-    },
-    {
-        name  = 'strand',
-        label = 'Strand Vermietung',
-        npc = {
-            enabled = true,
-            model   = 'a_f_y_beach_01',
-            coords  = vector4(-1339.0, -1108.0, 5.9, 20.0),
-        },
-        marker = {
-            enabled = true,
-            coords  = vector3(-1339.0, -1108.0, 4.9),
-            size    = vector3(1.5, 1.5, 0.5),
-            color   = { r = 0, g = 160, b = 90 },
-        },
-        blip = {
-            enabled = true,
-            coords  = vector3(-1339.0, -1108.0, 5.9),
-            sprite  = 225,
-            color   = 2,
-            scale   = 0.8,
-            label   = 'Fahrzeugvermietung',
-        },
-        spawnPoint = vector4(-1345.0, -1102.0, 4.9, 20.0),
-        vehicles = { 'faggio2', 'faggio' },
-    },
-}
+-- Fahrzeuge & Orte: leer lassen — alles über das Admin-Panel / JSON
+Config.Vehicles = {}
+Config.RentalLocations = {}

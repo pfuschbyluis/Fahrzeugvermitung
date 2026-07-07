@@ -651,7 +651,7 @@ end
 
 local function GetLocationsForVehicle(key)
     local out, seen = {}, {}
-    for _, loc in ipairs(Config.RentalLocations) do
+    for _, loc in ipairs(Config.RentalLocations or {}) do
         if TableContains(loc.vehicles or {}, key) then
             out[#out + 1] = loc.name
             seen[loc.name] = true
@@ -662,6 +662,20 @@ local function GetLocationsForVehicle(key)
             seen[loc.name] = true
         end
     end
+
+    if type(adminStore) == 'table' and type(adminStore.locations) == 'table' then
+        for _, loc in ipairs(adminStore.locations) do
+            if type(loc) == 'table' and loc.key then
+                local locKey = loc.key
+                local vehicles = loc.vehicles or {}
+                if (#vehicles == 0 or TableContains(vehicles, key)) and not seen[locKey] then
+                    out[#out + 1] = locKey
+                    seen[locKey] = true
+                end
+            end
+        end
+    end
+
     return out
 end
 
@@ -718,15 +732,7 @@ local function BuildAdminPayload()
         return tostring(a.label):lower() < tostring(b.label):lower()
     end)
 
-    local locations = {}
-    for _, loc in ipairs(Config.RentalLocations) do
-        locations[#locations + 1] = {
-            name = loc.name,
-            label = loc.label,
-            vehicles = GetLocationVehicleKeys(loc),
-        }
-    end
-
+    local locations = BuildAdminLocations()
     local rentals = {}
     for src, rental in pairs(activeRentals) do
         rentals[#rentals + 1] = {
@@ -1160,8 +1166,11 @@ local function SaveVehicleFromPayload(src, payload, requireLocations)
     -- Danach kann man sie im Tab "Standorte" wieder gezielt entfernen.
     if not validLocations and isNewVehicle then
         validLocations = {}
-        for _, loc in ipairs(Config.RentalLocations) do
-            validLocations[#validLocations + 1] = loc.name
+        for _, loc in ipairs(BuildAdminLocations()) do
+            local locKey = loc.key or loc.name
+            if locKey and locKey ~= '' then
+                validLocations[#validLocations + 1] = locKey
+            end
         end
     end
 
@@ -1208,8 +1217,18 @@ local function DeleteVehicleByKey(src, key)
     end
 
     adminStore.vehicles[key] = nil
+    for i, loc in ipairs(adminStore.locations or {}) do
+        if type(loc) == 'table' and type(loc.vehicles) == 'table' then
+            local cleanList = {}
+            for _, existingKey in ipairs(loc.vehicles) do
+                if existingKey ~= key then cleanList[#cleanList + 1] = existingKey end
+            end
+            loc.vehicles = cleanList
+            adminStore.locations[i] = loc
+        end
+    end
     for locName, list in pairs(adminStore.locations) do
-        if type(list) == 'table' then
+        if type(locName) == 'string' and type(list) == 'table' then
             local cleanList = {}
             for _, existingKey in ipairs(list) do
                 if existingKey ~= key then cleanList[#cleanList + 1] = existingKey end
