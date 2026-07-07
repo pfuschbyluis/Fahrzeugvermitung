@@ -1670,7 +1670,6 @@
         </button>
       `;
       updateThemeToggleButtons();
-      ColorScheme.onChange(renderThemeIndicator);
       let hudTimer = null;
 
       bar.addEventListener('click', (e) => {
