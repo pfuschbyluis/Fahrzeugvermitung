@@ -1081,6 +1081,22 @@
 
   function openVehicleModal(vehicle) {
     const isNew = !vehicle;
+    const d = admin.data || normalizeAdminPayload({});
+    const locations = d.locations || [];
+    const selected = new Set(Array.isArray(vehicle && vehicle.locations) ? vehicle.locations : []);
+    const locationChecks = locations.length
+      ? locations.map((loc) => {
+          const locKey = loc.key || loc.name;
+          const checked = selected.has(locKey) ? ' checked' : '';
+          return `
+            <label class="check-row">
+              <input type="checkbox" class="vm-location" value="${esc(locKey)}"${checked} />
+              <span>${esc(loc.label || loc.name || locKey)}</span>
+            </label>
+          `;
+        }).join('')
+      : '<p class="field-hint">Keine Miet-Orte vorhanden — zuerst unter „Standorte“ anlegen.</p>';
+
     openModal({
       title: isNew ? 'Fahrzeug hinzufügen' : 'Fahrzeug bearbeiten',
       bodyHTML: `
@@ -1116,6 +1132,11 @@
             <span class="img-preview-note hidden" id="vm-preview-note">Bild konnte nicht geladen werden — Link prüfen.</span>
           </div>
         </div>
+        <div class="field">
+          <span class="field-label">Verfügbar an Standorten</span>
+          <div class="check-list">${locationChecks}</div>
+          <span class="field-hint">Nur an ausgewählten Orten mietbar. Ohne Auswahl erscheint das Fahrzeug nirgends.</span>
+        </div>
       `,
       buttons: [
         { label: 'Abbrechen', cls: 'btn-secondary' },
@@ -1130,6 +1151,9 @@
               price: Math.max(0, Math.floor(Number($('#vm-price', m).value))),
               category: $('#vm-category', m).value.trim() || 'Fahrzeug',
               image: $('#vm-image', m).value.trim() || 'img/placeholder.svg',
+              locations: $$('.vm-location', m)
+                .filter((el) => el.checked)
+                .map((el) => el.value),
             };
             if (!data.label) { toast('Bitte eine Bezeichnung eingeben.', 'error'); return false; }
             if (!data.model) { toast('Bitte ein Spawn-Modell eingeben.', 'error'); return false; }
@@ -1863,6 +1887,7 @@
       const d = this.data;
 
       if (action === 'saveVehicle') {
+        let vehicleKey = data.key;
         if (data.key) {
           const v = d.vehicles.find((x) => x.key === data.key);
           Object.assign(v, data);
@@ -1870,8 +1895,15 @@
           let key = data.model;
           let n = 2;
           while (d.vehicles.some((x) => x.key === key)) key = `${data.model}_${n++}`;
+          vehicleKey = key;
           d.vehicles.push({ ...data, key });
         }
+        const selectedLocs = Array.isArray(data.locations) ? data.locations : [];
+        d.locations.forEach((l) => {
+          const locKey = l.key || l.name;
+          l.vehicles = (l.vehicles || []).filter((k) => k !== vehicleKey);
+          if (selectedLocs.includes(locKey)) l.vehicles.push(vehicleKey);
+        });
         toast('Fahrzeug gespeichert.', 'success');
       }
       if (action === 'deleteVehicle') {

@@ -715,7 +715,7 @@ Behoben:
 - `forceOpenAdmin`, `openAdmin`, `adminOpen`, `openAdminPanel` werden direkt im richtigen UI-Kontext verarbeitet.
 - `openRental` vom ox_target-NPC öffnet jetzt die Miet-UI.
 - Ingame erstellte Standorte werden serverseitig als gültige Mietstandorte erkannt.
-- Wenn ein ingame Standort keine Fahrzeugliste hat, sind dort alle Fahrzeuge verfügbar.
+- Fahrzeuge erscheinen nur an Standorten, denen sie im Admin-Panel explizit zugewiesen wurden.
 - `requestAdminData` nutzt jetzt den funktionierenden Server-Event.
 - `Config.Vehicles` wird korrekt als Key-Table gelesen.
 

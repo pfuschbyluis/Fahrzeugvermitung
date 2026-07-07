@@ -517,6 +517,29 @@ html[data-theme="light"] .statusbar-trailing {
 
 .field-hint { font-size: 12px; color: var(--faint); }
 
+.check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check-row input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
 .field-section-label {
   margin: 16px 0 8px;
   font-size: 12px;

@@ -316,7 +316,7 @@ local function FindLocation(name)
                     name = loc.key or loc.name,
                     key = loc.key or loc.name,
                     label = loc.label or loc.name or 'Mietstation',
-                    vehicles = loc.vehicles or {}, -- leer = alle Fahrzeuge
+                    vehicles = loc.vehicles or {},
                     spawnPoint = ResolveSpawnPoint(loc, x, y, z, h),
                     npc = {
                         enabled = true,
@@ -771,21 +771,6 @@ local function GetLocationVehicleKeys(location)
         addKey(key)
     end
 
-    -- Ingame erstellter Ort ohne eigene Fahrzeugliste = alle Fahrzeuge erlauben
-    if #out == 0 then
-        for key, _ in pairs(Config.Vehicles or {}) do
-            addKey(key)
-        end
-
-        if type(adminStore) == 'table' and type(adminStore.vehicles) == 'table' then
-            for key, _ in pairs(adminStore.vehicles) do
-                if type(key) == 'string' then
-                    addKey(key)
-                end
-            end
-        end
-    end
-
     local extra = adminStore.locations and adminStore.locations[location.name]
     if type(extra) == 'table' then
         for _, key in ipairs(extra) do
@@ -818,7 +803,7 @@ local function GetLocationsForVehicle(key)
             if type(loc) == 'table' and loc.key then
                 local locKey = loc.key
                 local vehicles = loc.vehicles or {}
-                if (#vehicles == 0 or TableContains(vehicles, key)) and not seen[locKey] then
+                if TableContains(vehicles, key) and not seen[locKey] then
                     out[#out + 1] = locKey
                     seen[locKey] = true
                 end
@@ -1328,7 +1313,6 @@ local function SaveVehicleFromPayload(src, payload, requireLocations)
     local category = Trim(payload.category)
     local image = Trim(payload.image)
     local locations = type(payload.locations) == 'table' and payload.locations or nil
-    local isNewVehicle = adminStore.vehicles[key] == nil and Config.Vehicles[key] == nil
 
     if key == '' or model == '' or label == '' then
         NotifyAdmin(src, 'Key, Spawn-Modell und Name müssen ausgefüllt sein.', 'error')
@@ -1371,18 +1355,6 @@ local function SaveVehicleFromPayload(src, payload, requireLocations)
         category = category,
         image = image,
     }
-
-    -- Neue Fahrzeuge aus dem Adminpanel direkt verfügbar machen.
-    -- Danach kann man sie im Tab "Standorte" wieder gezielt entfernen.
-    if not validLocations and isNewVehicle then
-        validLocations = {}
-        for _, loc in ipairs(BuildAdminLocations()) do
-            local locKey = loc.key or loc.name
-            if locKey and locKey ~= '' then
-                validLocations[#validLocations + 1] = locKey
-            end
-        end
-    end
 
     if validLocations then
         RemoveVehicleFromStoredLocations(key)
