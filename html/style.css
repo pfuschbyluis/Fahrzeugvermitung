@@ -223,24 +223,78 @@ html[data-theme="dark"] .contract-viewer-overlay {
   box-shadow: 0 0 0 3px #050608, 0 0 0 4px rgba(255, 255, 255, 0.06);
 }
 
-/* Statusleiste (Bildschirminhalt) */
+/* Statusleiste (iOS-Stil) */
 .tablet-statusbar {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  height: 30px;
-  padding: 0 18px;
+  justify-content: space-between;
+  gap: 12px;
+  height: 32px;
+  padding: 0 16px;
   background: var(--surface);
   color: var(--ink-soft);
   flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.statusbar-icons { display: flex; align-items: center; gap: 8px; }
-.statusbar-icons .ico { width: 15px; height: 15px; stroke-width: 1.4; }
-.statusbar-battery { width: 21px; }
+.statusbar-leading,
+.statusbar-trailing {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.statusbar-leading {
+  gap: 8px;
+}
+
+.statusbar-trailing {
+  gap: 6px;
+  margin-left: auto;
+}
+
+.statusbar-clock {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.statusbar-cellular {
+  width: 17px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.statusbar-wifi {
+  width: 16px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.statusbar-battery {
+  width: 27px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+html[data-theme="dark"] .statusbar-clock,
+html[data-theme="dark"] .statusbar-trailing {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme="light"] .statusbar-trailing {
+  color: rgba(10, 14, 20, 0.88);
+}
+
+.statusbar-leading .btn-theme-toggle {
+  opacity: 0.72;
+}
+
+.statusbar-leading .btn-theme-toggle:hover {
+  opacity: 1;
+}
 
 .btn-theme-toggle {
   display: inline-flex;
