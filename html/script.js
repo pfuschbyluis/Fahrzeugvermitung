@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════
-   MB_Fahrzeugvermitung — UI v3 (einheitliches Design)
+   MB_Fahrzeugvermitung — UI v2 (Spieler-App, Admin-Menü, HUD)
    ════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -644,14 +644,14 @@
 
   // Tab-Navigation
   $('#admin-nav').addEventListener('click', (e) => {
-    const item = e.target.closest('.app-nav-item');
+    const item = e.target.closest('.admin-nav-item');
     if (item) setAdminTab(item.dataset.tab);
   });
 
   function setAdminTab(tab) {
     admin.tab = tab || 'overview';
-    $$('.app-nav-item').forEach((i) => i.classList.toggle('active', i.dataset.tab === admin.tab));
-    $$('.app-tab').forEach((t) => t.classList.add('hidden'));
+    $$('.admin-nav-item').forEach((i) => i.classList.toggle('active', i.dataset.tab === admin.tab));
+    $$('.admin-tab').forEach((t) => t.classList.add('hidden'));
 
     const target = $(`#tab-${admin.tab}`);
     if (target) target.classList.remove('hidden');

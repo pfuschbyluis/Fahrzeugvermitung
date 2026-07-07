@@ -1,44 +1,42 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fahrzeugvermietung</title>
-  <link rel="stylesheet" href="style.css">
-  <script>
-  (function () {
-    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var scheme = dark ? 'dark' : 'light';
-    document.documentElement.dataset.theme = scheme;
-    document.documentElement.style.colorScheme = scheme;
-  })();
-  </script>
+<html lang="de"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fahrzeugvermietung</title>
+
+
+
+
+
+<link rel="stylesheet" href="style.css">
+<script>
+(function () {
+  var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var scheme = dark ? 'dark' : 'light';
+  document.documentElement.dataset.theme = scheme;
+  document.documentElement.style.colorScheme = scheme;
+})();
+</script>
 </head>
 <body>
-
 <div class="contract-viewer-overlay hidden" id="contract-viewer-app"></div>
+
 
 <!-- ════════════════════════════════════════════════════════════
      MIET-APP (Spieler)
      ════════════════════════════════════════════════════════════ -->
 <div class="overlay hidden" id="rental-app">
-  <div class="app-window app-window--player" role="dialog" aria-label="Fahrzeugvermietung">
+  <div class="tablet">
+    <div class="tablet-camera"></div>
+    <div class="window window-rental" role="dialog" aria-label="Fahrzeugvermietung">
 
-    <header class="app-chrome">
-      <div class="app-chrome-side">
-        <span class="app-clock" id="tablet-clock">09:41</span>
+    <div class="tablet-statusbar">
+      <span class="statusbar-clock" id="tablet-clock">09:41</span>
+      <div class="statusbar-icons">
+        <svg viewBox="0 0 16 16" class="ico"><path d="M2 6.5a9 9 0 0 1 12 0M4.3 9a5.6 5.6 0 0 1 7.4 0M6.6 11.4a2.4 2.4 0 0 1 2.8 0M8 13.4h.01"></path></svg>
+        <svg viewBox="0 0 22 12" class="ico statusbar-battery"><rect x="1" y="1.5" width="17" height="9" rx="2.5"></rect><path d="M20 4.5v3"></path><rect x="3" y="3.5" width="11" height="5" rx="1" fill="currentColor" stroke="none"></rect></svg>
       </div>
-      <div class="app-chrome-brand">
-        <span class="app-brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" class="ico"><path d="M3 15l2-6a2 2 0 0 1 1.9-1.4h10.2A2 2 0 0 1 19 9l2 6M5 15h14a1 1 0 0 1 1 1v3h-3v-1.5H7V19H4v-3a1 1 0 0 1 1-1zM7.5 12h.01M16.5 12h.01"></path></svg>
-        </span>
-        <span class="app-brand-text">Fahrzeugvermietung</span>
-      </div>
-      <div class="app-chrome-side app-chrome-side--end">
-        <svg viewBox="0 0 16 16" class="ico" aria-hidden="true"><path d="M2 6.5a9 9 0 0 1 12 0M4.3 9a5.6 5.6 0 0 1 7.4 0M6.6 11.4a2.4 2.4 0 0 1 2.8 0M8 13.4h.01"></path></svg>
-        <svg viewBox="0 0 22 12" class="ico ico-battery" aria-hidden="true"><rect x="1" y="1.5" width="17" height="9" rx="2.5"></rect><path d="M20 4.5v3"></path><rect x="3" y="3.5" width="11" height="5" rx="1" fill="currentColor" stroke="none"></rect></svg>
-      </div>
-    </header>
+    </div>
 
     <!-- SCREEN: FAHRZEUGAUSWAHL -->
     <section class="screen" id="screen-vehicles" data-screen-label="Fahrzeugauswahl">
@@ -70,9 +68,10 @@
           <svg viewBox="0 0 16 16" class="ico"><path d="M4 4l8 8M12 4l-8 8"></path></svg>
         </button>
       </header>
+
       <div class="screen-body details-layout">
         <div class="details-visual">
-          <div class="media-frame">
+          <div class="details-image">
             <img id="detail-image" alt="">
           </div>
           <div class="details-meta">
@@ -80,6 +79,7 @@
             <span class="details-baseprice" id="detail-baseprice">Grundpreis: —</span>
           </div>
         </div>
+
         <div class="details-options">
           <div class="field">
             <span class="field-label">Mietdauer</span>
@@ -89,12 +89,13 @@
             <span class="field-label">Zahlungsmethode</span>
             <div class="seg" id="payment-options"></div>
           </div>
-          <div class="summary-card">
-            <span class="summary-label">Gesamtpreis</span>
-            <span class="summary-value" id="total-price">0 €</span>
+          <div class="total-card">
+            <span class="total-label">Gesamtpreis</span>
+            <span class="total-value" id="total-price">0 €</span>
           </div>
         </div>
       </div>
+
       <footer class="screen-footer">
         <button class="btn btn-primary btn-wide" id="btn-prepare-contract">Mietvertrag vorbereiten</button>
       </footer>
@@ -114,6 +115,7 @@
           <svg viewBox="0 0 16 16" class="ico"><path d="M4 4l8 8M12 4l-8 8"></path></svg>
         </button>
       </header>
+
       <div class="screen-body">
         <div class="contract-paper">
           <div class="contract-head">
@@ -142,7 +144,8 @@
           </div>
         </div>
       </div>
-      <footer class="screen-footer screen-footer--split">
+
+      <footer class="screen-footer footer-split">
         <button class="btn btn-secondary" id="btn-contract-left" data-action="back-to-details">Zurück</button>
         <button class="btn btn-primary" id="btn-contract-right">Unterschreiben</button>
       </footer>
@@ -156,8 +159,8 @@
           <p class="screen-sub">Digitale Signatur wird erstellt</p>
         </div>
       </header>
-      <div class="screen-body screen-body--center">
-        <div class="card card--center">
+      <div class="screen-body center-body">
+        <div class="signing-card">
           <div class="signing-name" id="signing-name">—</div>
           <div class="signing-sig-wrap">
             <img class="signing-sig" id="signing-sig" alt="Unterschrift">
@@ -170,9 +173,9 @@
 
     <!-- SCREEN: BESTÄTIGUNG -->
     <section class="screen hidden" id="screen-success" data-screen-label="Bestätigung">
-      <div class="screen-body screen-body--center">
-        <div class="card card--center success-card">
-          <div class="success-icon" aria-hidden="true">
+      <div class="screen-body center-body">
+        <div class="success-card">
+          <div class="success-icon">
             <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"></path></svg>
           </div>
           <h2 class="success-title">Vertrag unterschrieben</h2>
@@ -181,66 +184,69 @@
       </div>
     </section>
 
+    </div>
   </div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════
-     ADMIN-APP
+     ADMIN-APP (Rental-Verwaltung)
      ════════════════════════════════════════════════════════════ -->
 <div class="overlay hidden" id="admin-app">
-  <div class="app-window app-window--admin" role="dialog" aria-label="Rental Verwaltung">
+  <div class="window window-admin" role="dialog" aria-label="Rental Verwaltung">
 
-    <aside class="app-sidebar">
-      <div class="app-sidebar-brand">
-        <span class="app-brand-icon app-brand-icon--accent" aria-hidden="true">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div class="admin-brand-mark">
           <svg viewBox="0 0 24 24" class="ico"><path d="M3 15l2-6a2 2 0 0 1 1.9-1.4h10.2A2 2 0 0 1 19 9l2 6M5 15h14a1 1 0 0 1 1 1v3h-3v-1.5H7V19H4v-3a1 1 0 0 1 1-1zM7.5 12h.01M16.5 12h.01"></path></svg>
-        </span>
-        <div class="app-sidebar-brand-text">
-          <span class="app-sidebar-title">Vermietung</span>
-          <span class="app-sidebar-sub">Verwaltung</span>
+        </div>
+        <div class="admin-brand-text">
+          <span class="admin-brand-title">Vermietung</span>
+          <span class="admin-brand-sub">Verwaltung</span>
         </div>
       </div>
 
-      <nav class="app-nav" id="admin-nav">
-        <button type="button" class="app-nav-item active" data-tab="overview">
+      <nav class="admin-nav" id="admin-nav">
+        <button type="button" class="admin-nav-item active" data-tab="overview">
           <svg viewBox="0 0 16 16" class="ico"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"></path></svg>
           Übersicht
         </button>
-        <button type="button" class="app-nav-item" data-tab="vehicles">
+        <button type="button" class="admin-nav-item" data-tab="vehicles">
           <svg viewBox="0 0 16 16" class="ico"><path d="M2 10l1.3-4a1.4 1.4 0 0 1 1.3-1h6.8a1.4 1.4 0 0 1 1.3 1L14 10M3 10h10a1 1 0 0 1 1 1v2h-2v-1H4v1H2v-2a1 1 0 0 1 1-1zM5 8h.01M11 8h.01"></path></svg>
           Fahrzeuge
         </button>
-        <button type="button" class="app-nav-item" data-tab="locations">
+        <button type="button" class="admin-nav-item" data-tab="locations">
           <svg viewBox="0 0 16 16" class="ico"><path d="M8 14s-4.5-4-4.5-7A4.5 4.5 0 0 1 8 2.5 4.5 4.5 0 0 1 12.5 7c0 3-4.5 7-4.5 7z"></path><circle cx="8" cy="7" r="1.6"></circle></svg>
           Standorte
         </button>
-        <button type="button" class="app-nav-item" data-tab="durations">
+        <button type="button" class="admin-nav-item" data-tab="durations">
           <svg viewBox="0 0 16 16" class="ico"><circle cx="8" cy="8" r="6"></circle><path d="M8 5v3.2l2.2 1.4"></path></svg>
           Mietdauern
         </button>
-        <button type="button" class="app-nav-item" data-tab="settings">
+        <button type="button" class="admin-nav-item" data-tab="settings">
           <svg viewBox="0 0 16 16" class="ico"><circle cx="8" cy="8" r="2.2"></circle><path d="M8 2v1.6M8 12.4V14M2 8h1.6M12.4 8H14M3.8 3.8l1.1 1.1M11.1 11.1l1.1 1.1M12.2 3.8l-1.1 1.1M4.9 11.1l-1.1 1.1"></path></svg>
           Einstellungen
         </button>
       </nav>
 
-      <div class="app-sidebar-foot">
+      <div class="admin-sidebar-foot">
         <button class="btn btn-secondary btn-block" data-action="close">Menü schließen</button>
       </div>
     </aside>
 
-    <main class="app-main">
-      <div class="app-tab" id="tab-overview"></div>
-      <div class="app-tab hidden" id="tab-vehicles"></div>
-      <div class="app-tab hidden" id="tab-locations"></div>
-      <div class="app-tab hidden" id="tab-durations"></div>
-      <div class="app-tab hidden" id="tab-settings"></div>
+    <main class="admin-main">
+      <div class="admin-tab" id="tab-overview"></div>
+      <div class="admin-tab hidden" id="tab-vehicles"></div>
+      <div class="admin-tab hidden" id="tab-locations"></div>
+      <div class="admin-tab hidden" id="tab-durations"></div>
+      <div class="admin-tab hidden" id="tab-settings"></div>
     </main>
 
   </div>
 </div>
 
-<!-- MIET-HUD -->
+<!-- ════════════════════════════════════════════════════════════
+     MIET-HUD (Restzeit während der Fahrt)
+     ════════════════════════════════════════════════════════════ -->
 <div class="rental-hud hidden" id="rental-hud">
   <div class="hud-top">
     <span class="hud-dot"></span>
@@ -257,9 +263,8 @@
 </div>
 <div class="toast-stack" id="toast-stack"></div>
 
-<!-- Demo-Leiste (nur Browser) -->
+<!-- Demo-Leiste (nur im Browser sichtbar, nie in FiveM) -->
 <div class="demo-bar hidden" id="demo-bar"></div>
 
 <script src="script.js"></script>
-</body>
-</html>
+</body></html>
