@@ -208,6 +208,13 @@ local function RemoveMoney(src, account, amount)
 end
 
 -- ============================================================
+-- UTILS (Trim muss vor GetCharacterName stehen — Lua-Scoping)
+-- ============================================================
+local function Trim(value)
+    return tostring(value or ''):gsub('^%s+', ''):gsub('%s+$', '')
+end
+
+-- ============================================================
 -- CHARAKTERNAME
 -- ============================================================
 local function GetCharacterName(src)
@@ -257,10 +264,6 @@ end)
 -- ============================================================
 -- UTILS / STORAGE
 -- ============================================================
-local function Trim(value)
-    return tostring(value or ''):gsub('^%s+', ''):gsub('%s+$', '')
-end
-
 local function Keyify(value)
     local key = Trim(value):lower():gsub('[^%w_%-]+', '_'):gsub('^_+', ''):gsub('_+$', '')
     if #key > 40 then key = key:sub(1, 40) end
